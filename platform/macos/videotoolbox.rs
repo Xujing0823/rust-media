@@ -52,7 +52,10 @@ impl Drop for VTDecompressionSession {
     }
 }
 
-impl TCFType<ffi::VTDecompressionSessionRef> for VTDecompressionSession {
+impl TCFType for VTDecompressionSession {
+
+    type Ref = ffi::VTDecompressionSessionRef;
+
     fn as_concrete_TypeRef(&self) -> ffi::VTDecompressionSessionRef {
         self.session
     }

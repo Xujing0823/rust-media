@@ -45,7 +45,10 @@ impl Clone for CVBuffer {
     }
 }
 
-impl TCFType<ffi::CVBufferRef> for CVBuffer {
+impl TCFType for CVBuffer {
+
+    type Ref = ffi::CVBufferRef;
+
     fn as_concrete_TypeRef(&self) -> ffi::CVBufferRef {
         self.buffer
     }

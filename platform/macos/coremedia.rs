@@ -11,7 +11,7 @@
 
 use timing::Timestamp;
 
-use core_foundation::base::{Boolean, CFRelease, CFRetain, CFTypeID, CFTypeRef, TCFType};
+use core_foundation::base::{Boolean, CFRelease, CFRetain, CFTypeID, CFTypeRef, TCFType, CFType};
 use core_foundation::base::{kCFAllocatorDefault};
 use core_foundation::dictionary::CFDictionary;
 use core_foundation::string::CFString;
@@ -103,7 +103,10 @@ impl Drop for CMFormatDescription {
     }
 }
 
-impl TCFType<ffi::CMFormatDescriptionRef> for CMFormatDescription {
+impl TCFType for CMFormatDescription {
+
+    type Ref = ffi::CMFormatDescriptionRef;
+
     fn as_concrete_TypeRef(&self) -> ffi::CMFormatDescriptionRef {
         self.description
     }
@@ -133,7 +136,7 @@ impl CMFormatDescription {
     pub fn new_video_format_description(codec_type: CMVideoCodecType,
                                         width: i32,
                                         height: i32,
-                                        extensions: &CFDictionary)
+                                        extensions: &CFDictionary<CFType, CFType>)
                                         -> Result<CMFormatDescription,OSStatus> {
         let mut result = ptr::null_mut();
         let err = unsafe {
@@ -166,7 +169,10 @@ impl Drop for CMBlockBuffer {
     }
 }
 
-impl TCFType<ffi::CMBlockBufferRef> for CMBlockBuffer {
+impl TCFType for CMBlockBuffer {
+
+    type Ref = ffi::CMBlockBufferRef;
+
     fn as_concrete_TypeRef(&self) -> ffi::CMBlockBufferRef {
         self.buffer
     }
@@ -241,7 +247,10 @@ impl Drop for CMSampleBuffer {
     }
 }
 
-impl TCFType<ffi::CMSampleBufferRef> for CMSampleBuffer {
+impl TCFType for CMSampleBuffer {
+
+    type Ref = ffi::CMSampleBufferRef;
+
     fn as_concrete_TypeRef(&self) -> ffi::CMSampleBufferRef {
         self.buffer
     }

@@ -9,7 +9,9 @@
 
 #![allow(non_upper_case_globals)]
 
-use alloc::heap;
+use std::alloc::System;
+use std::alloc::GlobalAlloc;
+use std::alloc::Layout;
 use libc::c_void;
 use std::mem;
 use std::ops::Deref;
@@ -45,7 +47,6 @@ pub struct AudioStreamPacketDescription {
 
 #[repr(C)]
 #[allow(missing_copy_implementations)]
-#[unsafe_no_drop_flag]
 pub struct AudioBuffer {
     number_channels: u32,
     data_byte_size: u32,
@@ -92,6 +93,7 @@ impl AudioBuffer {
 #[repr(C)]
 pub struct AudioBufferList {
     number_buffers: u32,
+    layout: Layout,
     // This is actually variable-length...
     buffers: [AudioBuffer; 1],
 }
@@ -102,9 +104,10 @@ impl AudioBufferList {
         assert!(buffers.len() <= (u32::MAX as usize));
         let buffer_list;
         unsafe {
-            buffer_list = heap::allocate(AudioBufferList::size(buffers.len() as u32),
-                                         mem::align_of::<AudioBufferList>())
-                as *mut AudioBufferList;
+            let layout = Layout::from_size_align(AudioBufferList::size(buffers.len() as u32),
+                                                 mem::align_of::<AudioBufferList>()).unwrap();
+            buffer_list = System.alloc(layout) as *mut AudioBufferList;
+            (*buffer_list).layout = layout;
             (*buffer_list).number_buffers = buffers.len() as u32;
             for (i, buffer) in buffers.iter_mut().enumerate() {
                 let buffer = mem::replace(buffer, AudioBuffer::new(1, Vec::new()));
@@ -138,9 +141,7 @@ pub struct AudioBufferListRef {
 impl Drop for AudioBufferListRef {
     fn drop(&mut self) {
         unsafe {
-            heap::deallocate(self.buffer_list as *mut u8,
-                             AudioBufferList::size((*self.buffer_list).number_buffers),
-                             mem::align_of::<AudioBufferList>())
+            System.dealloc(self.buffer_list as *mut u8, (*self.buffer_list).layout)
         }
     }
 }
