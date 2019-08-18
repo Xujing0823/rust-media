@@ -62,6 +62,7 @@ ogg = "0.5"
 # If we don't include this, libwebm-sys might not be present in
 # the target directory after a fresh clone due to a race condition.
 libwebm-sys = { git = "https://github.com/pcwalton/libwebm", branch = "servo" }
+cc = "1.0"
 
 [features]
 
